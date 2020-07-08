@@ -1,0 +1,228 @@
+= Git States
+
+The basic Git workflow goes something like this:
+1. You modify files in your working tree.
+2. You selectively stage just those changes you want to be part of your next commit, which adds
+only those changes to the staging area.
+3. You do a commit, which takes the files as they are in the staging area and stores that snapshot permanently to your Git directory.
+
+If a particular version of a file is in the Git directory, it’s considered committed. If it has been modified and was added to the staging area, it is staged. And if it was changed since it was checked out but has not been staged, it is modified.
+
+= You Identity
+
+# git config --global user.name "Alok Srivastava"
+# git config --global user.email alok@networknuts.net
+
+Checking your settings
+
+# git config --list
+# git config user.name
+
+= Cloning a existing directory
+
+# git clone https://github.com/networknuts/ansible.git
+
+If you want to clone the repository into a directory named something other than libgit2, you can
+specify the new directory name as an additional argument:
+
+# git clone https://github.com/networknuts/ansible.git newansible
+
+= Checking status of files
+
+# git status
+
+Tracking new files
+
+# git add newfilename
+
+Short status
+
+# git status -s
+
+Ignoring files
+
+vim .gitignore
+
+    #ignore all .doc files
+    *.doc
+    #but track alok.doc, even when you are ignoring all .doc files
+    !alok.doc
+    #ignore all the files in directory named mydata
+    mydata/
+    #only ignore the HELLO file in current directory, not subdir /HELLO
+    /HELLO
+    #ignore all .pdf files in doc/ directory and any of its subdirectories
+    doc/**/*.pdf
+    
+= View staged and unstaged changes
+
+# git diff
+# git diff --staged
+
+= Commiting changes
+
+# git commit
+# git commit -m "some meaningful description of changes done"
+
+= Removing files
+# git rm filename
+
+You may want to keep the file on your hard drive but not have Git track it anymore.
+# git rm --cached filename
+
+= Moving files
+# git mv oldfilename newfilename
+
+= Commit history
+
+# git log
+# git log -p -2   # shows last two entries
+# git log --stat
+# git log --pretty=oneline
+# git log --pretty=format:"%h - %an, %ar : %s "
+# git log --pretty=format:"%h %s" --graph
+# git log --since=1.weeks
+# git log -S some-string-to-find
+# git log --pretty="%h - %s" --author='alok' --since="2020-05-01" \
+  --before="2020-06-01" --no-merges -- t/
+  
+= Undoing things
+
+#git commit --amend   #redo the commit
+
+Suppose you commited in hurry and then realised that you forgot to add a file
+forgotten.yaml , you can do this
+# git commit -m "commit in a hurry"
+# git add forgotten.yaml
+# git commit --amend
+
+(as if the previous commit never happened)
+
+Unstaging a file - lets say you changed two files and you wanted to commit them
+as separate changes, but you accidentally executed - git add * and then staged 
+them both. How can we unstage one file?
+
+# git add *
+# git status
+# git reset HEAD filename-to-unstage
+# git status
+
+(git reset is a dangerous command to use)
+
+Unmodifying a file
+
+You don't want to keep the changes done to a file. 
+# git checkout -- filename
+
+= Working with Remotes
+
+You need to learn how to manage remote repositories. They can be on Internet or inside
+local network.
+
+# git clone https://github.com/networknuts/ansible
+# git remote -v
+
+To add a new remote Git repository as a shortname you can reference easily, 
+run git remote add <shortname> <url>
+
+# git remote add harley https://github.com/harley/fortyeight.git
+# git remote -v
+
+# git fetch harley
+# git remote show harley    # will shoe more information about a remote 
+
+Renaming remotes
+# git remote rename harley fortyeight
+# git remote 
+
+Remove a remote
+# git remote remove fortyeight
+# git remote
+
+= Git Aliases
+# git config --global alias.ci commit
+# git config --global alias.st status
+( that means now instead of typing git commit, you can type git ci)
+( that means now instead of typing git status, you can type git st)
+
+# git config --global alias.unstage 'reset HEAD --'
+(you can now use git unstage filename, which is equal to git reset HEAD -- filename)
+
+= Branching
+
+Create a new branch
+# git branch testing
+# git log --oneline --decorate
+
+Changing to a branch
+# git checkout testing
+# git checkout master
+
+# git log --oneline --decorate --graph --all
+
+Create a branch and switch to it
+# git checkout -b testing
+
+Merging testing to master branch
+# git checkout master
+# git merge testing
+
+Delete a branch after its merged
+# git branch -d testing
+
+List all the branches
+# git branch
+# git branch -v
+# git branch --merged    #show which branches are already merged into the branch you are
+# git branch --no-merged #show branches that contain work haven't merged
+
+= Interactive staging
+# git add -i 
+
+= Git GREP
+
+Git ships with a command "grep" 
+# git grep -n word-to-search
+# git grep --count word-to-search
+
+= Git Bundle
+
+# git log
+# git bundle create repo.bundle HEAD master
+(now send the repo.bundle to the user who wants to use the code)
+
+He will copy the file and run
+# git clone repo.bundle his-repo
+
+= Customizing GIT
+
+First git checks system wide settings under /etc/gitconfig 
+Then git will look for ~/.gitconfig file 
+
+We can change this file by passing --global option
+# man git-config
+
+# git config --global core.editor emacs
+
+(by default git will use the default text editor via environment variable)
+
+# git config --global commit.template ~/.gitmessage.txt
+(now create a file ~/.gitmessage.txt with your message)
+Now whenever your team will do commit, they will get this message
+
+# git config --global user.signingkey <gpg-key-id>
+(if user has gpg signatures)
+
+# git config --global core.excludesfile ~/.gitignore_global
+(now create that file with all the types of files you want to be ignored)
+(irrespective of the project you are working with)
+
+# git config --global help.autocorrect 1
+(now if you miss spell any command git will try to actually run it for you)
+(try running - git lig command before this and then run the same command again)
+(git lig is actually a typo error for git log)
+
+# git config --global color.ui true
+(now try running any command - git log)
+
+All these setting goes inside ~/.gitconfig
